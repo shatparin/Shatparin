@@ -1,0 +1,26 @@
+-- LocalScript
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local DEFAULT_SPEED = 16
+local targetSpeed = DEFAULT_SPEED
+
+local function setSpeed(speed)
+    targetSpeed = tonumber(speed) or DEFAULT_SPEED
+    local char = player.Character
+    if char then
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = targetSpeed
+        end
+    end
+end
+
+player.CharacterAdded:Connect(function(char)
+    local humanoid = char:WaitForChild("Humanoid", 5)
+    if humanoid then
+        humanoid.WalkSpeed = targetSpeed
+    end
+end)
+
+setSpeed(100)
