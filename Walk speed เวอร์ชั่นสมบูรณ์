@@ -1,0 +1,113 @@
+repeat wait() until game.Players.LocalPlayer
+local player = game.Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+local DEFAULT_SPEED = 16
+local BOOST_SPEED = 50
+local enabled = false
+
+-- สร้าง GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "WalkSpeedToggle"
+gui.ResetOnSpawn = false
+gui.Parent = PlayerGui
+
+-- เฟรมหลักสำหรับลาก
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 120)
+frame.Position = UDim2.new(0, 20, 0, 20)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = frame
+
+-- หัวข้อ "Prem Hack"
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 25)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Prem Hack"
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 22
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Parent = frame
+
+-- ปุ่ม ON/OFF
+local toggle = Instance.new("TextButton")
+toggle.Size = UDim2.new(0, 100, 0, 35)
+toggle.Position = UDim2.new(0.5, -50, 0, 30)
+toggle.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+toggle.Text = "OFF"
+toggle.Font = Enum.Font.SourceSansBold
+toggle.TextSize = 20
+toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggle.Parent = frame
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0, 8)
+toggleCorner.Parent = toggle
+
+-- ช่องปรับความเร็ว
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(0, 100, 0, 25)
+speedBox.Position = UDim2.new(0.5, -50, 0, 75)
+speedBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+speedBox.Text = tostring(BOOST_SPEED)
+speedBox.PlaceholderText = "ความเร็ว"
+speedBox.ClearTextOnFocus = false
+speedBox.Font = Enum.Font.SourceSans
+speedBox.TextSize = 18
+speedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedBox.Parent = frame
+
+local boxCorner = Instance.new("UICorner")
+boxCorner.CornerRadius = UDim.new(0, 5)
+boxCorner.Parent = speedBox
+
+-- ฟังก์ชันเปลี่ยนความเร็ว
+local function setSpeed()
+	local char = player.Character
+	if char then
+		local hum = char:FindFirstChildOfClass("Humanoid")
+		if hum then
+			hum.WalkSpeed = enabled and BOOST_SPEED or DEFAULT_SPEED
+		end
+	end
+end
+
+-- ฟังก์ชันสลับ ON/OFF
+local function toggleSpeed()
+	enabled = not enabled
+	if enabled then
+		toggle.Text = "ON"
+		toggle.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+	else
+		toggle.Text = "OFF"
+		toggle.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+	end
+	setSpeed()
+end
+
+toggle.MouseButton1Click:Connect(toggleSpeed)
+
+-- ฟังก์ชันปรับความเร็วจากช่อง
+speedBox.FocusLost:Connect(function()
+	local num = tonumber(speedBox.Text)
+	if num and num > 0 then
+		BOOST_SPEED = num
+		setSpeed()
+	end
+end)
+
+player.CharacterAdded:Connect(function()
+	task.wait(1)
+	setSpeed()
+end)
+
+if player.Character then
+	setSpeed()
+end
