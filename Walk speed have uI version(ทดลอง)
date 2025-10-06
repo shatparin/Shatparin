@@ -1,0 +1,114 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local DEFAULT_SPEED = 16
+local BOOST_SPEED = 100
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "WalkSpeedToggleGui"
+screenGui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame")
+frame.Name = "Container"
+frame.Size = UDim2.new(0, 180, 0, 60)
+frame.Position = UDim2.new(0, 20, 0, 20)
+frame.AnchorPoint = Vector2.new(0,0)
+frame.BackgroundTransparency = 0.2
+frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+local title = Instance.new("TextLabel")
+title.Name = "Title"
+title.Size = UDim2.new(1, -10, 0, 24)
+title.Position = UDim2.new(0, 5, 0, 4)
+title.BackgroundTransparency = 1
+title.Text = "WalkSpeed"
+title.TextColor3 = Color3.fromRGB(255,255,255)
+title.TextScaled = false
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 18
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = frame
+
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Name = "Status"
+statusLabel.Size = UDim2.new(1, -10, 0, 18)
+statusLabel.Position = UDim2.new(0, 5, 0, 28)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = "OFF"
+statusLabel.TextColor3 = Color3.fromRGB(255, 170, 0)
+statusLabel.TextScaled = false
+statusLabel.Font = Enum.Font.SourceSans
+statusLabel.TextSize = 16
+statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+statusLabel.Parent = frame
+
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Name = "Toggle"
+toggleBtn.Size = UDim2.new(0, 60, 0, 30)
+toggleBtn.Position = UDim2.new(1, -70, 0, 15)
+toggleBtn.AnchorPoint = Vector2.new(0,0)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(45,45,45)
+toggleBtn.BorderSizePixel = 0
+toggleBtn.Text = "TOGGLE"
+toggleBtn.TextColor3 = Color3.fromRGB(255,255,255)
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.TextSize = 14
+toggleBtn.Parent = frame
+
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local enabled = false
+local function setHumanoidSpeed(character, speed)
+    if not character then return end
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = speed
+    end
+end
+
+player.CharacterAdded:Connect(function(char)
+    -- รอ humanoid
+    local humanoid = char:WaitForChild("Humanoid", 5)
+    if humanoid then
+        if enabled then
+            humanoid.WalkSpeed = BOOST_SPEED
+        else
+            humanoid.WalkSpeed = DEFAULT_SPEED
+        end
+    end
+end)
+
+local function toggle()
+    enabled = not enabled
+    if enabled then
+        statusLabel.Text = "ON"
+        statusLabel.TextColor3 = Color3.fromRGB(0, 200, 0)
+        if player.Character then
+            setHumanoidSpeed(player.Character, BOOST_SPEED)
+        end
+    else
+        statusLabel.Text = "OFF"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 170, 0)
+        if player.Character then
+            setHumanoidSpeed(player.Character, DEFAULT_SPEED)
+        end
+    end
+end
+
+toggleBtn.MouseButton1Click:Connect(toggle)
+
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+        if input.KeyCode == Enum.KeyCode.H then
+            toggle()
+        end
+    end
+end)
+
+if player.Character then
+    setHumanoidSpeed(player.Character, DEFAULT_SPEED)
+end
