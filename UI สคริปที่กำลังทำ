@@ -1,0 +1,55 @@
+-- LocalScript (วางใน ScreenGui)
+local TweenService = game:GetService("TweenService")
+local splash = script.Parent:WaitForChild("SplashFrame") -- ชื่อ Frame หรือ ImageLabel
+local mainGui = script.Parent:FindFirstChild("MainUI") -- ถ้ามี UI หลักไว้ซ่อน
+
+-- ตั้งค่าเริ่มต้น
+splash.Visible = true
+splash.BackgroundTransparency = 1 -- ถ้าใช้ ImageLabel ให้กำหนด ImageTransparency แทน
+-- ถ้าใช้ ImageLabel:
+-- splash.ImageTransparency = 1
+
+-- ฟังก์ชันช่วย Tween fade
+local function tweenProperty(instance, prop, target, time, style, direction)
+    local info = TweenInfo.new(time or 0.6, style or Enum.EasingStyle.Quad, direction or Enum.EasingDirection.Out)
+    local tween = TweenService:Create(instance, info, {[prop] = target})
+    tween:Play()
+    return tween
+end
+
+-- ขั้นตอน: fade in -> hold -> fade out -> ซ่อน/ลบ
+local function playSplash()
+    -- Fade in (0.0 transparency = fully visible)
+    if splash:IsA("ImageLabel") or splash:IsA("ImageButton") then
+        tweenProperty(splash, "ImageTransparency", 0, 0.6)
+    else
+        tweenProperty(splash, "BackgroundTransparency", 0, 0.6)
+    end
+
+    -- รอให้ fade in เสร็จ
+    wait(0.7)
+
+    -- Hold ระยะหนึ่ง
+    wait(1.5)
+
+    -- Fade out
+    if splash:IsA("ImageLabel") or splash:IsA("ImageButton") then
+        tweenProperty(splash, "ImageTransparency", 1, 0.6)
+    else
+        tweenProperty(splash, "BackgroundTransparency", 1, 0.6)
+    end
+
+    wait(0.7)
+
+    -- ลบหรือซ่อน splash แล้วแสดง UI หลักถ้ามี
+    splash:Destroy()
+    if mainGui then
+        mainGui.Enabled = true
+    end
+end
+
+-- ถ้า UI หลักมี ให้ซ่อนก่อน
+if mainGui then mainGui.Enabled = false end
+
+-- เรียกใช้งาน
+playSplash()
